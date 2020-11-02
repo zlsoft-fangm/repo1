@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zlsoft.dao.DepartmentDao">
+
+    <!--查询显示所以部门信息-->
+    <select id="findAll" resultType="com.zlsoft.framework.entitys.Department"  parameterType="com.zlsoft.framework.entitys.Department" >
+        select * from  部门表 where 1=1
+        <if test="上级ID != null">
+            and 上级ID = #{上级ID}
+        </if>
+        <if test="编码 != null">
+            and 编码 = #{编码}
+        </if>
+        <if test="名称 != null">
+            and 名称 = #{名称}
+        </if>
+        <if test="简码 != null">
+            and 简码 = #{简码}
+        </if>
+    </select>
+
+
+    <!--查询显示所以部门层级信息-->
+    <select id="findAllTier" resultType="com.zlsoft.framework.entitys.DepartmentTier"  parameterType="com.zlsoft.framework.entitys.DepartmentTier" >
+        select * from  zlwebservice.一卡通部门层级 where 1=1
+        <if test="上级ID != null">
+            and 上级ID = #{上级ID}
+        </if>
+        <if test="名称 != null">
+            and 名称 = #{名称}
+        </if>
+    </select>
+
+
+    <!--查询显示所以部门层级关联信息-->
+    <select id="findAllTierRelev" resultType="com.zlsoft.framework.entitys.DepartmentTierRelev"  parameterType="com.zlsoft.framework.entitys.DepartmentTierRelev" >
+        select * from  zlwebservice.一卡通部门层级关联 where 1=1
+        <if test="层级ID != null">
+            and 层级ID = #{层级ID}
+        </if>
+        <if test="部门ID != null">
+            and 部门ID = #{部门ID}
+        </if>
+    </select>
+
+    <!--一卡通部门层级添加-->
+    <insert id="deptTierInsert" parameterType="com.zlsoft.framework.entitys.DepartmentTier" useGeneratedKeys="false" >
+        insert into zlwebservice.一卡通部门层级(ID,上级ID,名称,排序)
+        values (ZLWEBSERVICE.一卡通部门层级_ID.NEXTVAL,#{上级ID},#{名称},#{排序})
+    </insert>
+
+    <!--一卡通部门层级更新-->
+    <update id="deptTierUpdate" parameterType="com.zlsoft.framework.entitys.DepartmentTier">
+        update zlwebservice.一卡通部门层级
+        <set>
+            <if test="上级ID != null">上级ID=#{上级ID},</if>
+            <if test="名称 != null">名称=#{名称}</if>
+        </set>
+        where ID=#{ID}
+    </update>
+
+    <!--一卡通部门层级删除-->
+    <delete id="deptTierDelete" parameterType="Integer">
+        delete from zlwebservice.一卡通部门层级 where ID=#{id}
+    </delete>
+
+    <!--一卡通部门层级关联添加 Oracle语法-->
+    <insert id="deptTierRelevInsert" useGeneratedKeys="false">
+        INSERT INTO zlwebservice.一卡通部门层级关联 (层级ID, 部门ID)
+        <foreach collection="list" item="item" separator="union all" >
+            select #{item.层级ID},#{item.部门ID} from dual
+        </foreach>
+    </insert>
+
+    <!--一卡通部门层级关联删除-->
+    <delete id="deptTierRelevDelete" parameterType="java.lang.Integer" >
+        delete from zlwebservice.一卡通部门层级关联
+        where 部门ID IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.部门ID}
+        </foreach>
+    </delete>
+</mapper>
